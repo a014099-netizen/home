@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 歌曲查詢應用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .search-section {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-section select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-section select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .song-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .song-card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .song-card:hover {
+            background: #f0f1ff;
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .song-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .song-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .song-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .song-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .song-info {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 歌曲查詢應用</h1>
+            <p>搜尋並發現您喜愛的音樂</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="搜尋歌曲名稱、藝術家或專輯..."
+                    autocomplete="off"
+                >
+                <button class="btn btn-primary" onclick="searchSongs()">🔍 搜尋</button>
+            </div>
+
+            <div class="filter-section">
+                <select id="genreFilter" onchange="filterSongs()">
+                    <option value="">所有類型</option>
+                    <option value="pop">流行</option>
+                    <option value="rock">搖滾</option>
+                    <option value="hiphop">嘻哈</option>
+                    <option value="jazz">爵士</option>
+                    <option value="classical">古典</option>
+                    <option value="electronic">電子</option>
+                </select>
+
+                <select id="yearFilter" onchange="filterSongs()">
+                    <option value="">所有年份</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                </select>
+
+                <button class="btn btn-primary" onclick="clearFilters()" style="background: #e0e0e0; color: #333;">清除篩選</button>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-title" id="resultsTitle">搜尋結果</div>
+            <div class="song-list" id="songList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎼</div>
+                    <p>開始搜尋以查看歌曲列表</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalSongs">0</div>
+                <div class="stat-label">總歌曲數</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="artistCount">0</div>
+                <div class="stat-label">藝術家數</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="resultCount">0</div>
+                <div class="stat-label">搜尋結果</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 示例歌曲數據
+        const songDatabase = [
+            {
+                id: 1,
+                title: '天空之城',
+                artist: '宮崎駿',
+                album: '天空之城 OST',
+                genre: 'classical',
+                year: 2022,
+                duration: '4:32',
+                plays: 1250000
+            },
+            {
+                id: 2,
+                title: '光年之外',
+                artist: '鄧紫棋',
+                album: '光年之外',
+                genre: 'pop',
+                year: 2023,
+                duration: '4:16',
+                plays: 2150000
+            },
+            {
+                id: 3,
+                title: '孤勇者',
+                artist: '陳奕迅',
+                album: '寶石',
+                genre: 'rock',
+                year: 2021,
+                duration: '3:48',
+                plays: 3890000
+            },
+            {
+                id: 4,
+                title: '你的名字',
+                artist: 'RAP怪獸',
+                album: '新專輯',
+                genre: 'hiphop',
+                year: 2024,
+                duration: '3:25',
+                plays: 1540000
+            },
+            {
+                id: 5,
+                title: '月光奏鳴曲',
+                artist: '貝多芬',
+                album: '經典鋼琴曲',
+                genre: 'classical',
+                year: 2020,
+                duration: '5:42',
+                plays: 980000
+            },
+            {
+                id: 6,
+                title: '狂蜂浪蝶',
+                artist: '周杰倫',
+                album: '說好不哭',
+                genre: 'pop',
+                year: 2023,
+                duration: '4:00',
+                plays: 2340000
+            },
+            {
+                id: 7,
+                title: '電子夢境',
+                artist: 'Daft Punk',
+                album: 'Homework',
+                genre: 'electronic',
+                year: 2022,
+                duration: '5:05',
+                plays: 1120000
+            },
+            {
+                id: 8,
+                title: '爵士夜晚',
+                artist: 'Miles Davis',
+                album: 'Kind of Blue',
+                genre: 'jazz',
+                year: 2021,
+                duration: '9:02',
+                plays: 890000
+            }
+        ];
+
+        let filteredSongs = [];
+
+        // 搜尋功能
+        function searchSongs() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchTerm.trim() === '') {
+                alert('請輸入搜尋關鍵字');
+                return;
+            }
+
+            filteredSongs = songDatabase.filter(song => 
+                song.title.toLowerCase().includes(searchTerm) ||
+                song.artist.toLowerCase().includes(searchTerm) ||
+                song.album.toLowerCase().includes(searchTerm)
+            );
+
+            applyFilters();
+        }
+
+        // 篩選功能
+        function filterSongs() {
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const genre = document.getElementById('genreFilter').value;
+            const year = document.getElementById('yearFilter').value;
+
+            let results = filteredSongs.length > 0 ? filteredSongs : songDatabase;
+
+            if (genre) {
+                results = results.filter(song => song.genre === genre);
+            }
+
+            if (year) {
+                results = results.filter(song => song.year === parseInt(year));
+            }
+
+            displayResults(results);
+            updateStats(results);
+        }
+
+        // 顯示結果
+        function displayResults(songs) {
+            const songList = document.getElementById('songList');
+            const resultsTitle = document.getElementById('resultsTitle');
+
+            if (songs.length === 0) {
+                resultsTitle.textContent = '搜尋結果 - 未找到';
+                songList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>未找到符合條件的歌曲</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsTitle.textContent = `搜尋結果 - 找到 ${songs.length} 首歌曲`;
+            
+            songList.innerHTML = songs.map((song, index) => `
+                <div class="song-card" onclick="playSong(${song.id})">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <span class="song-number">${index + 1}</span>
+                        <div class="song-title">${song.title}</div>
+                    </div>
+                    <div class="song-info">
+                        <div class="song-info-item">
+                            <span class="info-label">🎤 藝術家：</span>
+                            <span>${song.artist}</span>
+                        </div>
+                        <div class="song-info-item">
+                            <span class="info-label">💿 專輯：</span>
+                            <span>${song.album}</span>
+                        </div>
+                        <div class="song-info-item">
+                            <span class="info-label">🎵 類型：</span>
+                            <span>${getGenreName(song.genre)}</span>
+                        </div>
+                        <div class="song-info-item">
+                            <span class="info-label">📅 年份：</span>
+                            <span>${song.year}</span>
+                        </div>
+                        <div class="song-info-item">
+                            <span class="info-label">⏱️ 時長：</span>
+                            <span>${song.duration}</span>
+                        </div>
+                        <div class="song-info-item">
+                            <span class="info-label">▶️ 播放次數：</span>
+                            <span>${formatNumber(song.plays)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新統計
+        function updateStats(songs) {
+            document.getElementById('totalSongs').textContent = songDatabase.length;
+            document.getElementById('artistCount').textContent = new Set(songDatabase.map(s => s.artist)).size;
+            document.getElementById('resultCount').textContent = songs.length;
+        }
+
+        // 清除篩選
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('genreFilter').value = '';
+            document.getElementById('yearFilter').value = '';
+            filteredSongs = [];
+            
+            const songList = document.getElementById('songList');
+            songList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎼</div>
+                    <p>開始搜尋以查看歌曲列表</p>
+                </div>
+            `;
+            
+            document.getElementById('resultsTitle').textContent = '搜尋結果';
+            updateStats([]);
+        }
+
+        // 播放歌曲
+        function playSong(id) {
+            const song = songDatabase.find(s => s.id === id);
+            if (song) {
+                alert(`🎵 現在播放: ${song.title}\n藝術家: ${song.artist}\n${song.duration}`);
+            }
+        }
+
+        // 輔助函數
+        function getGenreName(genre) {
+            const genres = {
+                'pop': '流行',
+                'rock': '搖滾',
+                'hiphop': '嘻哈',
+                'jazz': '爵士',
+                'classical': '古典',
+                'electronic': '電子'
+            };
+            return genres[genre] || genre;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // 按 Enter 鍵搜尋
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchSongs();
+            }
+        });
+
+        // 初始化
+        updateStats([]);
+    </script>
+</body>
+</html>
